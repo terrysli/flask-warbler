@@ -5,7 +5,8 @@ from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm
+from forms import (UserAddForm, LoginForm, MessageForm, CSRFProtectForm,
+UserEditForm)
 from models import db, connect_db, User, Message
 
 load_dotenv()
@@ -235,7 +236,32 @@ def stop_following(follow_id):
 def profile():
     """Update profile for current user."""
 
-    # IMPLEMENT THIS
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    form = UserEditForm(obj=g.user)
+
+    if form.validate_on_submit():
+        # check if password matches
+        # if it is, then update fields
+        if User.authenticate(g.user.username, form.password.data):
+            g.user.username = form.data.username
+            g.user.email = form.data.email
+            g.user.image_url = form.data.image_url
+            g.user.header_image_url = form.data.header_image_url
+            g.user.bio = form.data.bio
+
+            db.session.commit()
+
+            return redirect(f"/users/{g.user.id}")
+
+        else:
+            flash("Error", "Danger")
+            return render_template("users/edit.html", form=form)
+
+    else:
+        return render_template("users/edit.html", form=form)
 
 
 @app.post('/users/delete')
