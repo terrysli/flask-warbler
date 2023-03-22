@@ -162,7 +162,6 @@ def list_users():
 def show_user(user_id):
     """Show user profile."""
 
-    form = CSRFProtectForm()
 
     if not g.user:
         flash("Access unauthorized.", "danger")
@@ -170,7 +169,7 @@ def show_user(user_id):
 
     user = User.query.get_or_404(user_id)
 
-    return render_template('users/show.html', user=user, form=form)
+    return render_template('users/show.html', user=user)
 
 
 @app.get('/users/<int:user_id>/following')
