@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
-from werkzeug.exceptions import Unauthorized
 
 from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm
 from models import db, connect_db, User, Message
@@ -123,7 +122,7 @@ def logout():
 
     if not g.user:
         flash("Access unauthorized.", "danger")
-        raise Unauthorized()
+        return redirect("/")
 
     if g.csrf_form.validate_on_submit():
         do_logout()
@@ -131,7 +130,8 @@ def logout():
         return redirect("/login")
 
     else:  # CSRF invalid
-        raise Unauthorized()
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
 
 
 ##############################################################################
@@ -161,7 +161,6 @@ def list_users():
 @app.get('/users/<int:user_id>')
 def show_user(user_id):
     """Show user profile."""
-
 
     if not g.user:
         flash("Access unauthorized.", "danger")
