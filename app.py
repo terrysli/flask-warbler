@@ -124,7 +124,7 @@ def logout():
     if form.validate_on_submit():
         do_logout()
 
-        redirect("/login")
+        return redirect("/login")
 
     else:  # CSRF invalid
         raise Unauthorized()
@@ -328,8 +328,9 @@ def homepage():
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
+        form = CSRFProtectForm()
 
-        return render_template('home.html', messages=messages)
+        return render_template('home.html', messages=messages, form=form)
 
     else:
         return render_template('home-anon.html')
