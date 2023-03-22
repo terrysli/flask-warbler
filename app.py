@@ -41,6 +41,7 @@ def add_user_to_g():
 
 @app.before_request
 def add_crsf_form_to_g():
+    """TODO: Docstring"""
 
     g.csrf_form = CSRFProtectForm()
 
@@ -119,20 +120,15 @@ def login():
 
 @app.post('/logout')
 def logout():
-    """Handle logout of user and redirect to homepage."""
+    """Handle logout of user and redirect to login page."""
 
-    if not g.user:
+    if not g.user or not g.csrf_form.validate_on_submit():
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    if g.csrf_form.validate_on_submit():
-        do_logout()
-
-        return redirect("/login")
-
-    else:  # CSRF invalid
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
+    do_logout()
+    #TODO: can flash success msg
+    return redirect("/login")
 
 
 ##############################################################################
@@ -264,7 +260,7 @@ def profile():
     else:
         return render_template("users/edit.html", form=form)
 
-
+#TODO: add CSRF protection
 @app.post('/users/delete')
 def delete_user():
     """Delete user.
@@ -278,6 +274,7 @@ def delete_user():
 
     do_logout()
 
+    Message.query.filter_by(user_id=g.user.id).delete()
     db.session.delete(g.user)
     db.session.commit()
 
@@ -354,11 +351,10 @@ def homepage():
     """
 
     if g.user:
+        following_ids = [user.id for user in g.user.following]+[g.user.id]
         messages = (Message
                     .query
-                    .filter((Message.user_id == g.user.id) |
-                            (Message.user_id.in_(
-                             [user.id for user in g.user.following])))
+                    .filter(Message.user_id.in_(following_ids))
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
