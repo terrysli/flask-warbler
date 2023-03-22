@@ -374,6 +374,13 @@ nav + .container {
   overflow: hidden;
 }
 
+.header-wrapper {
+  width: 100%;
+  padding-bottom: 45%;
+  position: relative;
+  overflow: hidden;
+}
+
 .card-contents {
   display: flex;
   justify-content: space-between;

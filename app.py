@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 
 from forms import (UserAddForm, LoginForm, MessageForm, CSRFProtectForm,
 UserEditForm)
-from models import db, connect_db, User, Message
+from models import db, connect_db, User, Message, DEFAULT_IMAGE_URL, DEFAULT_HEADER_IMAGE_URL
 
 load_dotenv()
 
@@ -244,12 +244,13 @@ def profile():
 
     if form.validate_on_submit():
         # check if password matches
-        # if it is, then update fields besides password
+        # if it is, then update user data besides password
         if User.authenticate(g.user.username, form.password.data):
             g.user.username = form.username.data
             g.user.email = form.email.data
-            g.user.image_url = form.image_url.data
-            g.user.header_image_url = form.header_image_url.data
+            g.user.image_url = form.image_url.data or DEFAULT_IMAGE_URL
+            g.user.header_image_url = (form.header_image_url.data or
+                DEFAULT_HEADER_IMAGE_URL)
             g.user.bio = form.bio.data
 
             db.session.commit()
