@@ -232,7 +232,7 @@ def stop_following(follow_id):
     return redirect(f"/users/{g.user.id}/following")
 
 
-@app.route('/users/profile', methods=["GET", "POST"])
+@app.route('/users/edit-profile', methods=["GET", "POST"])
 def profile():
     """Update profile for current user."""
 
@@ -246,11 +246,11 @@ def profile():
         # check if password matches
         # if it is, then update fields
         if User.authenticate(g.user.username, form.password.data):
-            g.user.username = form.data.username
-            g.user.email = form.data.email
-            g.user.image_url = form.data.image_url
-            g.user.header_image_url = form.data.header_image_url
-            g.user.bio = form.data.bio
+            g.user.username = form.username.data
+            g.user.email = form.email.data
+            g.user.image_url = form.image_url.data
+            g.user.header_image_url = form.header_image_url.data
+            g.user.bio = form.bio.data
 
             db.session.commit()
 
