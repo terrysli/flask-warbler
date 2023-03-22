@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField
-from wtforms.validators import DataRequired, Email, Length, URL
+from wtforms.validators import DataRequired, Email, Length, URL, Optional
 
 class CSRFProtectForm(FlaskForm):
     """Form just for CSRF Protection"""
@@ -31,6 +31,7 @@ class UserAddForm(FlaskForm):
 
     image_url = StringField(
         '(Optional) Image URL',
+        validators=[Optional()]
     )
 
 class UserEditForm(UserAddForm):
@@ -40,7 +41,7 @@ class UserEditForm(UserAddForm):
 
     header_image_url = StringField(
         'Header Image URL',
-        validators=[URL()]
+        validators=[URL(), Optional()]
     )
 
 
