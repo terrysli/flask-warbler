@@ -39,6 +39,12 @@ def add_user_to_g():
         g.user = None
 
 
+@app.before_request
+def add_crsf_form_to_g():
+
+    g.csrf_form = CSRFProtectForm()
+
+
 def do_login(user):
     """Log in user."""
 
@@ -119,9 +125,7 @@ def logout():
         flash("Access unauthorized.", "danger")
         raise Unauthorized()
 
-    form = CSRFProtectForm()
-
-    if form.validate_on_submit():
+    if g.csrf_form.validate_on_submit():
         do_logout()
 
         return redirect("/login")
@@ -330,9 +334,8 @@ def homepage():
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
-        form = CSRFProtectForm()
 
-        return render_template('home.html', messages=messages, form=form)
+        return render_template('home.html', messages=messages)
 
     else:
         return render_template('home-anon.html')
