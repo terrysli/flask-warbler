@@ -2,6 +2,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length
 
+class CSRFProtectForm(FlaskForm):
+    """Form just for CSRF Protection"""
 
 class MessageForm(FlaskForm):
     """Form for adding/editing messages."""
