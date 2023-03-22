@@ -30,8 +30,7 @@ class UserAddForm(FlaskForm):
     )
 
     image_url = StringField(
-        '(Optional) Image URL',
-        validators=[Optional()]
+        '(Optional) Image URL'
     )
 
 class UserEditForm(UserAddForm):
