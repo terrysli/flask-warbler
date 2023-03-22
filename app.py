@@ -244,7 +244,7 @@ def profile():
 
     if form.validate_on_submit():
         # check if password matches
-        # if it is, then update fields
+        # if it is, then update fields besides password
         if User.authenticate(g.user.username, form.password.data):
             g.user.username = form.username.data
             g.user.email = form.email.data
@@ -257,7 +257,7 @@ def profile():
             return redirect(f"/users/{g.user.id}")
 
         else:
-            flash("Error", "Danger")
+            flash("Incorrect password", "danger")
             return render_template("users/edit.html", form=form)
 
     else:
@@ -349,12 +349,15 @@ def homepage():
     """Show homepage:
 
     - anon users: no messages
-    - logged in: 100 most recent messages of followed_users
+    - logged in: 100 most recent messages of current user and followed_users
     """
 
     if g.user:
         messages = (Message
                     .query
+                    .filter((Message.user_id == g.user.id) |
+                            (Message.user_id.in_(
+                             [user.id for user in g.user.following])))
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
