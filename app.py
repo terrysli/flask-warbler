@@ -6,8 +6,9 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
 from forms import (UserAddForm, LoginForm, MessageForm, CSRFProtectForm,
-UserEditForm)
-from models import db, connect_db, User, Message, DEFAULT_IMAGE_URL, DEFAULT_HEADER_IMAGE_URL
+                   UserEditForm)
+from models import (db, connect_db, User, Message, Like,
+                    DEFAULT_IMAGE_URL, DEFAULT_HEADER_IMAGE_URL)
 
 load_dotenv()
 
@@ -247,7 +248,7 @@ def profile():
             g.user.email = form.email.data
             g.user.image_url = form.image_url.data or DEFAULT_IMAGE_URL
             g.user.header_image_url = (form.header_image_url.data or
-                DEFAULT_HEADER_IMAGE_URL)
+                                       DEFAULT_HEADER_IMAGE_URL)
             g.user.bio = form.bio.data
 
             db.session.commit()
@@ -260,6 +261,7 @@ def profile():
 
     else:
         return render_template("users/edit.html", form=form)
+
 
 @app.post('/users/delete')
 def delete_user():
@@ -317,6 +319,40 @@ def show_message(message_id):
 
     msg = Message.query.get_or_404(message_id)
     return render_template('messages/show.html', message=msg)
+
+
+@app.post('/messages/<int:msg_id>/like')
+def like_message(msg_id):
+    """Like a message."""
+
+    if not g.user or not g.csrf_form.validate_on_submit():
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    msg = Message.query.get_or_404(msg_id)
+    like = Like(user_id=g.user.id, message_id=msg.id)
+
+    db.session.add(like)
+    db.session.commit()
+
+    return redirect("/")
+
+
+@app.post('/messages/<int:msg_id>/unlike')
+def unlike_message(msg_id):
+    """Unlike a message."""
+
+    if not g.user or not g.csrf_form.validate_on_submit():
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    #breakpoint()
+    like = Like.query.filter((Like.user_id == g.user.id) &
+        (Like.message_id == msg_id)).one_or_none()
+
+    db.session.delete(like)
+    db.session.commit()
+
+    return redirect("/")
 
 
 @app.post('/messages/<int:message_id>/delete')
