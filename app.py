@@ -127,7 +127,8 @@ def logout():
         return redirect("/")
 
     do_logout()
-    #TODO: can flash success msg
+    flash("Logged out", "success")
+
     return redirect("/login")
 
 
