@@ -185,6 +185,7 @@ class Message(db.Model):
         secondary='likes',
         backref='liked_messages')
 
+
 class Like(db.Model):
     """Messages liked by Users"""
 

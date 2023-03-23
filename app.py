@@ -270,7 +270,7 @@ def profile():
         return render_template("users/edit.html", form=form)
 
 
-@app.get("/users/<user_id>/liked-messages")
+@app.get("/users/<user_id>/liked-messages") # TODO: Make sure this int convertible for id
 def show_liked_messages(user_id):
     """Show user like messages"""
 
@@ -343,34 +343,38 @@ def show_message(message_id):
     msg = Message.query.get_or_404(message_id)
     return render_template('messages/show.html', message=msg)
 
-
+# TODO:  # keeping them separate is idempotent
+# TODO: add filter to make sure own user is not trying to like their own message in route, 403 status
+# TODO: add shared logic to a function, keep separate routes
 @app.post('/messages/<int:msg_id>/like')
 def like_message(msg_id):
-    """Like a message."""
+    """Like a message.""" # TODO: ADD where user gets returned to
 
     if not g.user or not g.csrf_form.validate_on_submit():
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
     msg = Message.query.get_or_404(msg_id)
-    like = Like(user_id=g.user.id, message_id=msg.id)
+    like = Like(user_id=g.user.id, message_id=msg.id) # TODO: could append to that users likes
 
     db.session.add(like)
     db.session.commit()
 
     return redirect(request.referrer)
+    # TODO: May not be supported by all browsers,
+    # instead on form can add hidden input and extract value
 
 
 @app.post('/messages/<int:msg_id>/unlike')
 def unlike_message(msg_id):
-    """Unlike a message."""
+    """Unlike a message.""" # TODO: ADD where user gets returned to
 
     if not g.user or not g.csrf_form.validate_on_submit():
         flash("Access unauthorized.", "danger")
         return redirect("/")
     #breakpoint()
     like = Like.query.filter((Like.user_id == g.user.id) &
-        (Like.message_id == msg_id)).one_or_none()
+        (Like.message_id == msg_id)).one_or_none() # TODO: could remove from users likes instead
 
     db.session.delete(like)
     db.session.commit()

@@ -24,6 +24,8 @@
       <div class="interaction" style="z-index: 100;">
         <form method="POST">
           {{ g.csrf_form.hidden_tag() }}
+          <!-- TODO: Browser compatable way of getting original url -->
+          <input type="hidden" value="{{ request.url }}" name="origin-url">
           {% if message in g.user.liked_messages %}
             <button
               class="btn btn-outline-danger"
