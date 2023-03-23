@@ -38,6 +38,7 @@ class User(db.Model):
     id = db.Column(
         db.Integer,
         primary_key=True,
+        autoincrement=True
     )
 
     email = db.Column(
@@ -64,26 +65,32 @@ class User(db.Model):
 
     bio = db.Column(
         db.Text,
+        nullable=False,
+        default=''
     )
 
     location = db.Column(
         db.Text,
+        nullable=False,
+        default=''
     )
 
     password = db.Column(
         db.Text,
-        nullable=False,
+        nullable=False
     )
 
-    messages = db.relationship('Message', backref="user")
+    authored_messages = db.relationship('Message', backref="user")
 
     followers = db.relationship(
         "User",
         secondary="follows",
         primaryjoin=(Follows.user_being_followed_id == id),
         secondaryjoin=(Follows.user_following_id == id),
-        backref="following",
+        backref="following"
     )
+
+    # liked_messages secondary relationship to messages liked by this user
 
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.email}>"
@@ -151,17 +158,18 @@ class Message(db.Model):
     id = db.Column(
         db.Integer,
         primary_key=True,
+        autoincrement=True
     )
 
     text = db.Column(
         db.String(140),
-        nullable=False,
+        nullable=False
     )
 
     timestamp = db.Column(
         db.DateTime,
         nullable=False,
-        default=datetime.utcnow,
+        default=datetime.utcnow
     )
 
     user_id = db.Column(
@@ -170,6 +178,35 @@ class Message(db.Model):
         nullable=False,
     )
 
+    likes = db.relationship('Like', backref="message")
+
+    users_who_liked = db.relationship(
+        'User',
+        secondary='likes',
+        backref='liked_messages')
+
+class Like(db.Model):
+    """Messages liked by Users"""
+
+    __tablename__ = "likes"
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+        autoincrement=True
+    )
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='CASCADE'),
+        nullable=False
+    )
+
+    message_id = db.Column(
+        db.Integer,
+        db.ForeignKey('messages.id', ondelete='CASCADE'),
+        nullable=False
+    )
 
 def connect_db(app):
     """Connect this database to provided Flask app.
