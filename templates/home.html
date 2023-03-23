@@ -63,11 +63,19 @@
               <form method="POST">
                 {{ g.csrf_form.hidden_tag() }}
                 {% if msg in g.user.liked_messages %}
-                  <button formaction="/messages/{{ msg.id }}/unlike">
+                  <button
+                    class="btn btn-outline-danger"
+                    style="border: none;"
+                    formaction="/messages/{{ msg.id }}/unlike"
+                  >
                     <i class="bi bi-heart-fill"></i>
                   </button>
                 {% elif msg.user_id != g.user.id %}
-                  <button formaction="/messages/{{ msg.id }}/like">
+                  <button
+                    formaction="/messages/{{ msg.id }}/like"
+                    style="border: none;"
+                    class="btn btn-outline-danger"
+                  >
                     <i class="bi bi-heart"></i>
                   </button>
                 {% endif %}
