@@ -4,10 +4,11 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
+from werkzeug.exceptions import Forbidden
 
 from forms import (UserAddForm, LoginForm, MessageForm, CSRFProtectForm,
                    UserEditForm)
-from models import (db, connect_db, User, Message, Like,
+from models import (db, connect_db, User, Message,
                     DEFAULT_IMAGE_URL, DEFAULT_HEADER_IMAGE_URL)
 
 load_dotenv()
@@ -270,7 +271,7 @@ def profile():
         return render_template("users/edit.html", form=form)
 
 
-@app.get("/users/<user_id>/liked-messages") # TODO: Make sure this int convertible for id
+@app.get("/users/<int:user_id>/liked-messages")
 def show_liked_messages(user_id):
     """Show user like messages"""
 
@@ -344,20 +345,21 @@ def show_message(message_id):
     return render_template('messages/show.html', message=msg)
 
 # TODO:  # keeping them separate is idempotent
-# TODO: add filter to make sure own user is not trying to like their own message in route, 403 status
 # TODO: add shared logic to a function, keep separate routes
 @app.post('/messages/<int:msg_id>/like')
 def like_message(msg_id):
-    """Like a message.""" # TODO: ADD where user gets returned to
+    """Like a message and redirect to origin page."""
 
     if not g.user or not g.csrf_form.validate_on_submit():
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
     msg = Message.query.get_or_404(msg_id)
-    like = Like(user_id=g.user.id, message_id=msg.id) # TODO: could append to that users likes
 
-    db.session.add(like)
+    if msg.user_id == g.user.id:
+        raise Forbidden
+
+    g.user.liked_messages.append(msg)
     db.session.commit()
 
     return redirect(request.referrer)
@@ -367,16 +369,18 @@ def like_message(msg_id):
 
 @app.post('/messages/<int:msg_id>/unlike')
 def unlike_message(msg_id):
-    """Unlike a message.""" # TODO: ADD where user gets returned to
+    """Unlike a message and redirect to origin page."""
 
     if not g.user or not g.csrf_form.validate_on_submit():
         flash("Access unauthorized.", "danger")
         return redirect("/")
-    #breakpoint()
-    like = Like.query.filter((Like.user_id == g.user.id) &
-        (Like.message_id == msg_id)).one_or_none() # TODO: could remove from users likes instead
 
-    db.session.delete(like)
+    msg = Message.query.get_or_404(msg_id)
+
+    if msg.user_id == g.user.id:
+        raise Forbidden
+
+    g.user.liked_messages.remove(msg)
     db.session.commit()
 
     return redirect(request.referrer)
