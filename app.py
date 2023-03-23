@@ -170,7 +170,11 @@ def show_user(user_id):
 
     user = User.query.get_or_404(user_id)
 
-    return render_template('users/show.html', user=user)
+    return render_template(
+        'users/show.html',
+        user=user,
+        messages=user.authored_messages
+    )
 
 
 @app.get('/users/<int:user_id>/following')
@@ -265,6 +269,22 @@ def profile():
     else:
         return render_template("users/edit.html", form=form)
 
+
+@app.get("/users/<user_id>/liked-messages")
+def show_liked_messages(user_id):
+    """Show user like messages"""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    user = User.query.get_or_404(user_id)
+
+    return render_template(
+        'users/show.html',
+        user=user,
+        messages=user.liked_messages
+    )
 
 @app.post('/users/delete')
 def delete_user():
