@@ -216,7 +216,7 @@ def start_following(follow_id):
     g.user.following.append(followed_user)
     db.session.commit()
 
-    return redirect(f"/users/{g.user.id}/following")
+    return redirect(request.referrer)
 
 
 @app.post('/users/stop-following/<int:follow_id>')
@@ -234,7 +234,7 @@ def stop_following(follow_id):
     g.user.following.remove(followed_user)
     db.session.commit()
 
-    return redirect(f"/users/{g.user.id}/following")
+    return redirect(request.referrer)
 
 
 @app.route('/users/edit-profile', methods=["GET", "POST"])
