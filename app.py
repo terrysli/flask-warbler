@@ -41,7 +41,7 @@ def add_user_to_g():
 
 @app.before_request
 def add_crsf_form_to_g():
-    """TODO: Docstring"""
+    """Add CSRFProtectForm to g object"""
 
     g.csrf_form = CSRFProtectForm()
 
@@ -260,7 +260,6 @@ def profile():
     else:
         return render_template("users/edit.html", form=form)
 
-#TODO: add CSRF protection
 @app.post('/users/delete')
 def delete_user():
     """Delete user.
@@ -268,7 +267,7 @@ def delete_user():
     Redirect to signup page.
     """
 
-    if not g.user:
+    if not g.user or not g.csrf_form.validate_on_submit():
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
