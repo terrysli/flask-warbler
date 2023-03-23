@@ -21,6 +21,16 @@
             </span>
         <p>{{ message.text }}</p>
       </div>
+
+      <div class="interaction">
+        {% if message in user.liked_messages %}
+          <i class="bi bi-heart-fill"></i>
+        <!-- TODO: if this user has liked this message -->
+        <!-- if this message is in the messages liked by this user -->
+        {% else %}
+        <i class="bi bi-heart"></i>
+        {% endif %}
+      </div>
     </li>
 
     {% endfor %}
