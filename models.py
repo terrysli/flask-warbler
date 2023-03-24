@@ -80,7 +80,7 @@ class User(db.Model):
         nullable=False
     )
 
-    authored_messages = db.relationship('Message', backref="user")
+    authored_messages = db.relationship('Message', backref="author")
 
     followers = db.relationship(
         "User",
