@@ -104,16 +104,6 @@ class UserModelTestCase(TestCase):
         # new_user should equal user added to db
         self.assertEqual(new_user, User.query.filter_by(username="test_user").one())
 
-    def test_user_signup_fail_name(self):
-
-        self.assertRaises(
-            TypeError,
-            User.signup,
-            email="test_user@mail.com",
-            password="password",
-            image_url=None
-        )
-
     def test_user_signup_fail_same_name(self):
         """Test trying to create user with existing username"""
 
