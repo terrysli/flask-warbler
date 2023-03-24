@@ -178,7 +178,7 @@ class Message(db.Model):
         nullable=False,
     )
 
-    #likes = db.relationship('Like', backref="message")
+    # author = backref relationship to user that wrote message
 
     users_who_liked = db.relationship(
         'User',
