@@ -8,34 +8,34 @@
     <ul class="list-group no-hover" id="messages">
       <li class="list-group-item">
 
-        <a href="{{ url_for('show_user', user_id=message.user.id) }}">
-          <img src="{{ message.user.image_url }}"
+        <a href="{{ url_for('show_user', user_id=message.author.id) }}">
+          <img src="{{ message.author.image_url }}"
                alt=""
                class="timeline-image">
         </a>
 
         <div class="message-area">
           <div class="message-heading">
-            <a href="/users/{{ message.user.id }}">
-              @{{ message.user.username }}
+            <a href="/users/{{ message.author.id }}">
+              @{{ message.author.username }}
             </a>
 
             {% if g.user %}
-            {% if g.user.id == message.user.id %}
+            {% if g.user.id == message.author.id %}
             <form method="POST"
                   action="/messages/{{ message.id }}/delete">
                   {{ g.csrf_form.hidden_tag() }}
               <button class="btn btn-outline-danger">Delete</button>
             </form>
-            {% elif g.user.is_following(message.user) %}
+            {% elif g.user.is_following(message.author) %}
             <form method="POST"
-                  action="/users/stop-following/{{ message.user.id }}">
+                  action="/users/stop-following/{{ message.author.id }}">
                   {{ g.csrf_form.hidden_tag() }}
               <button class="btn btn-primary">Unfollow</button>
             </form>
             {% else %}
             <form method="POST"
-                  action="/users/follow/{{ message.user.id }}">
+                  action="/users/follow/{{ message.author.id }}">
                   {{ g.csrf_form.hidden_tag() }}
               <button class="btn btn-outline-primary btn-sm">
                 Follow
