@@ -116,7 +116,6 @@ class UserModelTestCase(TestCase):
             )
             db.session.commit()
 
-
     def test_user_signup_fail_same_email(self):
         """Test trying to create user with existing email"""
 
@@ -144,3 +143,25 @@ class UserModelTestCase(TestCase):
 ##############################################################################
 # User.authenticate tests
 
+def test_user_authenticate_valid(self):
+    """Test successful return of user with correct username and password"""
+
+    u1 = User.query.filter_by(id=self.u1_id).one()
+
+    self.assertEqual(
+        u1,
+        User.authenticate(
+            username="u1",
+            password="password"
+        )
+    )
+
+def test_user_authenticate_invalid_username(self):
+    """Test that invalid username fails to authenticate"""
+
+    self.assertFalse(User.authenticate(username="baduser", password="password"))
+
+def test_user_authenticate_invalid_password(self):
+    """Test that invalid password fails to authenticate"""
+
+    self.assertFalse(User.authenticate(username="u1", password="badpassword"))
