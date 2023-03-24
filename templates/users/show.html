@@ -8,14 +8,14 @@
     <li class="list-group-item">
       <a href="/messages/{{ message.id }}" class="message-link"></a>
 
-      <a href="/users/{{ message.user.id }}">
-        <img src="{{ message.user.image_url }}"
+      <a href="/users/{{ message.author.id }}">
+        <img src="{{ message.author.image_url }}"
              alt="user image"
              class="timeline-image">
       </a>
 
       <div class="message-area">
-        <a href="/users/{{ message.user.id }}">@{{ message.user.username }}</a>
+        <a href="/users/{{ message.author.id }}">@{{ message.author.username }}</a>
         <span class="text-muted">
               {{ message.timestamp.strftime('%d %B %Y') }}
             </span>
@@ -24,8 +24,6 @@
       <div class="interaction" style="z-index: 100;">
         <form method="POST">
           {{ g.csrf_form.hidden_tag() }}
-          <!-- TODO: Browser compatable way of getting original url -->
-          <!-- <input type="hidden" value="{{ request.url }}" name="origin-url"> -->
           {% if message in g.user.liked_messages %}
             <button
               class="btn btn-outline-danger"
