@@ -8,7 +8,7 @@
 import os
 from unittest import TestCase
 from sqlalchemy.exc import IntegrityError
-from models import db, User, Message, Follows
+from models import db, User, Message, Follows, Like
 
 # BEFORE we import our app, let's set an environmental variable
 # to use a different database for tests (we need to do this
@@ -41,10 +41,15 @@ class MessageModelTestCase(TestCase):
         self.u2_id = u2.id
 
         msg = Message(text="Sample Text", user_id=self.u1_id)
-
         db.session.add(msg)
         db.session.commit()
+
+        like = Like(user_id=self.u2_id, message_id=msg.id)
+        db.session.add(like)
+        db.session.commit()
+
         self.u1_msg_id = msg.id
+        self.like_id = like.id
 
         self.client = app.test_client()
 
@@ -78,7 +83,17 @@ class MessageModelTestCase(TestCase):
     def test_message_users_who_liked_valid(self):
         """Test that a message has expected list of users who like"""
 
+        msg = Message.query.filter_by(id=self.u1_msg_id).one()
+        u2 = User.query.get(self.u2_id)
+
+        self.assertEqual(msg.users_who_liked, [u2])
+
     def test_message_users_who_liked_invalid(self):
         """
         Test that a message will not accept like from user who does not exist
         """
+
+        with self.assertRaises(IntegrityError):
+            like = Like(user_id=1000, message_id=self.u1_msg_id)
+            db.session.add(like)
+            db.session.commit()
